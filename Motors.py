@@ -93,40 +93,48 @@ class RotationMotor:
         print('home')
         m2en.value = True
 
-
-    def moveOffSample(self):
-        while c.getInput() == True:
-            m2step.value = True
-            time.sleep(0.001)
-            m2step.value = False
-            time.sleep(0.001)
-
-    def moveToSample(self):
-        while c.getInput() == False:
-            m2step.value = True
-            time.sleep(0.001)
-            m2step.value = False
-            time.sleep(0.001)
-
-        if b.getInput() == True:
-            self.homed = True
-            self.current_pos = 0
-        else:
-            if m2dir.value == False:
-                self.current_pos += 1
-            else:
-                self.current_pos -= 1
-
+    def performStep(self):
+        m2step.value = True
+        time.sleep(0.001)
+        m2step.value = False
+        time.sleep(0.001)
 
 
     def rotateMotor(self, sample = 0):
         m2en.value = False
         m2dir.value = sample < self.current_pos
-        numSamplesToMove = abs(sample - self.current_pos)
-        for i in range(numSamplesToMove):
-            self.moveOffSample()
-            self.moveToSample()
-            print('Pos ' + str(self.current_pos))
+        #todo matt this does not move backwards well
+        atSample = self.current_pos == sample
+        homedWhileMoving = False
+        needsMoveOffSample = c.getInput()
+        while atSample == False and homedWhileMoving == False:
+            self.performStep()
+            if c.getInput() == True and needsMoveOffSample == False:
+                needsMoveOffSample = True
+                if m2dir.value == False:
+                    self.current_pos += 1
+                else:
+                    self.current_pos -= 1
+                print('Pos ' + str(self.current_pos))
+            elif c.getInput() == False:
+                needsMoveOffSample = False
+
+            if b.getInput() == True:
+                self.homed = True
+                self.current_pos = 0
+            #self.moveOffSample()
+            #self.moveToSample()
+            atSample = self.current_pos == sample
+            #homedWhileMoving = self.current_pos == 0
+
+        if m2dir.value == True:
+            #adjust backwards positioning
+            while c.getInput() == True:
+                self.performStep()
+
+            m2dir.value = False
+            while c.getInput() == False:
+                self.performStep()
 
         print('R' + str(self.current_pos))
 
