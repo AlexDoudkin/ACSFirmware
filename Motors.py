@@ -122,14 +122,11 @@ class RotationMotor:
     def rotateMotor(self, sample = 0):
         m2en.value = False
         m2dir.value = sample < self.current_pos
-        lastPingTime = 0
         numSamplesToMove = abs(sample - self.current_pos)
         for i in range(numSamplesToMove):
             self.moveOffSample()
             self.moveToSample()
-            if time.time() - lastPingTime >= 3:
-                lastPingTime = time.time()
-                print('Pos ' + str(self.current_pos))
+            print('Pos ' + str(self.current_pos))
 
         print('R' + str(self.current_pos))
 
