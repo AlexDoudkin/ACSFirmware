@@ -1,28 +1,37 @@
+import _thread
 from Motors import RotationMotor, LinearMotor
 
 rotationMotor = RotationMotor()
 linearMotor = LinearMotor()
+
 while True:
-    a = input()
+    a = input("")
     try:
         if a == 'U':
-            linearMotor.raisePlatform()
+            linearMotor.is_aborted = False
+            _thread.start_new_thread(linearMotor.raisePlatform, ())
         elif a == 'D':
-            linearMotor.lowerPlatform()
+            linearMotor.is_aborted = False
+            _thread.start_new_thread(linearMotor.lowerPlatform, ())
         elif a == 'H':
-            rotationMotor.home()
+            rotationMotor.is_aborted = False
+            _thread.start_new_thread(rotationMotor.home, ())
         elif a == 'N':
-            rotationMotor.moveOneSampleForward()
+            rotationMotor.is_aborted = False
+            _thread.start_new_thread(rotationMotor.moveOneSampleForward, ())
         elif a == 'B':
-            rotationMotor.moveOneSampleBackwards()
+            rotationMotor.is_aborted = False
+            _thread.start_new_thread(rotationMotor.moveOneSampleBackwards, ())
         elif a.isdigit():
-            rotationMotor.rotateMotor(int(a))
+            rotationMotor.is_aborted = False
+            _thread.start_new_thread(rotationMotor.rotateMotor, (int(a), ))
         elif a == 'P':
-            rotationMotor.getPos()
+            rotationMotor.is_aborted = False
+            _thread.start_new_thread(rotationMotor.getPos, ())
+        elif a == 'abort':
+            rotationMotor.is_aborted = True
+            linearMotor.is_aborted = True
         elif a == 'ping':
             print('pong')
-        else:
-            print('commandNotFound_ascr')
-    except:
-        print('exception_acsr')
-    
+    except Exception as e:
+        print('exception_acsr ' + str(e.args))
