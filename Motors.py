@@ -20,7 +20,7 @@ class LinearMotor:
     fan.value(True)
 
     def __init__(self):
-        #engine value is false to prevent mechanical part from moving
+        # engine value is false to prevent mechanical part from moving
         en.value(False)
         self.platform_raised = False
         self.is_aborted = False
@@ -70,14 +70,21 @@ class RotationMotor:
 
     def home(self):
         m2en.value(False)
+        lastPingTime = 0
         if not self.homed:
             while not home_sensor.value() and not self.is_aborted:
                 self.performStep()
 
+                if time.time() - lastPingTime >= 3:
+                    lastPingTime = time.time()
+                    print("homing")
+
             if home_sensor.value():
                 self.homed = True
                 self.current_pos = 0
-                print('home')
+
+        if self.homed:
+            print('home')
 
         m2en.value(True)
 
