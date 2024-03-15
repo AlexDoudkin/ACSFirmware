@@ -17,7 +17,7 @@ hall_effect = Pin(5, Pin.IN)
 
 
 class LinearMotor:
-    fan.value(True)
+    fan.on()
 
     def __init__(self):
         # engine value is false to prevent mechanical part from moving
@@ -26,20 +26,20 @@ class LinearMotor:
         self.is_aborted = False
 
     def lowerPlatform(self):
-        fan.value(True)
+        fan.on()
         while not lift_sensor.value() and not self.is_aborted:
-            step.value(True)
+            step.on()
             time.sleep(0.001)
-            step.value(False)
+            step.off()
             time.sleep(0.001)
 
         if lift_sensor.value():
             print('dn')
             self.platform_raised = False
-        fan.value(False)
+        fan.off()
 
     def raisePlatform(self):
-        fan.value(True)
+        fan.on()
         # todo self.platform_raised can be removed when a raised sensor is added
         # this works well until it is aborted in the middle.
         # Abort callers will have to handle re-positioning to the sensor on restart
@@ -47,16 +47,19 @@ class LinearMotor:
         if not self.platform_raised:
             for i in range(1760):
                 if not self.is_aborted:
-                    step.value(True)
+                    step.on()
                     time.sleep(0.001)
-                    step.value(False)
+                    step.off()
                     time.sleep(0.001)
                 else:
                     wasAborted = True
         if not wasAborted:
             print('up')
             self.platform_raised = True
-        fan.value(False)
+        fan.off()
+
+    def turnFanOff(self):
+        fan.off()
 
 
 class RotationMotor:
@@ -89,16 +92,16 @@ class RotationMotor:
         m2en.value(True)
 
     def performStep(self):
-        m2step.value(True)
+        m2step.on()
         time.sleep(0.001)
-        m2step.value(False)
+        m2step.off()
         time.sleep(0.001)
 
     def rotateMotor(self, sample=0):
         m2en.value(False)
         m2dir.value(sample < self.current_pos)
         atSample = self.current_pos == sample
-        startedAtHome = home_sensor.value()
+        needsMoveOffHome = home_sensor.value()
         homedWhileMoving = False
         needsMoveOffSample = hall_effect.value()
         while not atSample and not homedWhileMoving and not self.is_aborted:
@@ -110,15 +113,16 @@ class RotationMotor:
                 else:
                     self.current_pos -= 1
                 print('Pos ' + str(self.current_pos))
-            elif not hall_effect.value():
+                atSample = self.current_pos == sample
+            elif needsMoveOffSample and not hall_effect.value():
                 needsMoveOffSample = False
 
-            if home_sensor.value():
+            if home_sensor.value() and not needsMoveOffHome:
                 self.homed = True
                 self.current_pos = 0
-                if not startedAtHome:
-                    homedWhileMoving = True
-            atSample = self.current_pos == sample
+                homedWhileMoving = True
+            elif needsMoveOffHome and not home_sensor.value():
+                needsMoveOffHome = False
 
         if m2dir.value():
             # adjust backwards positioning by moving a bit too far and fixing forward
