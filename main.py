@@ -16,12 +16,6 @@ while True:
         elif a == 'H':
             rotationMotor.is_aborted = False
             _thread.start_new_thread(rotationMotor.home, ())
-        elif a == 'N':
-            rotationMotor.is_aborted = False
-            _thread.start_new_thread(rotationMotor.moveOneSampleForward, ())
-        elif a == 'B':
-            rotationMotor.is_aborted = False
-            _thread.start_new_thread(rotationMotor.moveOneSampleBackwards, ())
         elif a.isdigit():
             rotationMotor.is_aborted = False
             _thread.start_new_thread(rotationMotor.rotateMotor, (int(a), ))

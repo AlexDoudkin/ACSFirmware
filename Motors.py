@@ -136,13 +136,5 @@ class RotationMotor:
         print('R' + str(self.current_pos))
         m2en.value(True)
 
-    def moveOneSampleForward(self):
-        newSample = self.current_pos + 1
-        self.rotateMotor(newSample)
-
-    def moveOneSampleBackwards(self):
-        newSample = self.current_pos - 1
-        self.rotateMotor(newSample)
-
     def getPos(self):
         print(str(self.current_pos))
