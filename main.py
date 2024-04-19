@@ -25,7 +25,6 @@ while True:
         elif a == 'abort':
             rotationMotor.is_aborted = True
             linearMotor.is_aborted = True
-            linearMotor.turnFanOff()
         elif a == 'ping':
             print('pong')
     except Exception as e:

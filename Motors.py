@@ -26,7 +26,6 @@ class LinearMotor:
         self.is_aborted = False
 
     def lowerPlatform(self):
-        fan.on()
         while not lift_sensor.value() and not self.is_aborted:
             step.on()
             time.sleep(0.001)
@@ -36,10 +35,8 @@ class LinearMotor:
         if lift_sensor.value():
             print('dn')
             self.platform_raised = False
-        fan.off()
 
     def raisePlatform(self):
-        fan.on()
         # todo self.platform_raised can be removed when a raised sensor is added
         # this works well until it is aborted in the middle.
         # Abort callers will have to handle re-positioning to the sensor on restart
@@ -56,10 +53,7 @@ class LinearMotor:
         if not wasAborted:
             print('up')
             self.platform_raised = True
-        fan.off()
 
-    def turnFanOff(self):
-        fan.off()
 
 
 class RotationMotor:
